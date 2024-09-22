@@ -1,6 +1,6 @@
 ## Fake CPU Core Count
 
-This project allows you to simulate a higher number of CPU cores on your Linux system. It's useful for testing and development purposes when you need to emulate a system with more cores than your physical hardware provides.
+This project allows you to simulate a higher number of CPU cores and a custom CPU frequency on your Linux system. It's useful for testing and development purposes when you need to emulate a system with more cores than your physical hardware provides.
 
 ### Files
 
@@ -12,7 +12,7 @@ This project allows you to simulate a higher number of CPU cores on your Linux s
 
 1. To simulate a specific number of cores:
    ```
-   ./fakecpu.sh [desired core count]
+   ./fakecpu.sh [desired core count] (optional max frequency in Hz)
    ```
    Example: `./fakecpu.sh 128`
 

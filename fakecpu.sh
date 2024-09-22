@@ -1,20 +1,30 @@
 #!/bin/bash
 
 if [ -z "$1" ] || ! [[ "$1" =~ ^-?[0-9]+$ ]]; then
-    echo "Usage: $0 [core count]"
-    echo "Example: $0 128"
-    exit 1
+  echo "Usage: $0 [core count] (max cpu freq in hz, optional)"
+  echo "Example: $0 128 5000000"
+  exit 1
 fi
 
 cores=$(unset LD_PRELOAD; nproc)
 targetcores=$1
 extracores=$((targetcores-cores))
 
+customfreq=""
+if [ -n "$2" ] && [[ "$2" =~ ^-?[0-9]+$ ]]; then
+  customfreq=$2
+fi
+
 if [ -d "./cpu_base" ]; then
   ./fakecpu-reset.sh auto
 fi
 
-echo "Creating $extracores additional CPU cores..."
+if [[ "$customfreq" =~ ^-?[0-9]+$ ]]; then
+  echo "Creating $extracores additional CPU cores and setting max clock to $customfreq Hz..."
+else
+  echo "Creating $extracores additional CPU cores..."
+fi
+
 
 sudo cp -r /sys/devices/system/cpu/cpu0 ./cpu_base 2>/dev/null
 mkdir original_cpu_dir custom_cpu workdir
@@ -42,6 +52,13 @@ for ((i=cores; i<extracores+cores; i++)); do
   sudo chown root:root ./custom_cpu/cpu$i
   sudo chmod 755 ./custom_cpu/cpu$i
 done
+
+if [[ "$customfreq" =~ ^-?[0-9]+$ ]]; then
+  for ((i=0; i<cores; i++)); do
+    sudo mkdir -p ./custom_cpu/cpufreq/policy$i
+    echo $customfreq | sudo tee ./custom_cpu/cpufreq/policy$i/cpuinfo_max_freq >/dev/null
+  done
+fi
 
 gcc -shared -fPIC -DFAKE_NPROCESSORS=$((cores+extracores)) fake_sysconf.c -o libfakesysconf.so -ldl
 
