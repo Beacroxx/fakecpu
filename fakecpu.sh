@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ -z "$1" ] || ! [[ "$1" =~ ^-?[0-9]+$ ]]; then
   echo "Usage: $0 [core count] (max cpu freq in hz, optional)"
@@ -47,18 +47,18 @@ grep -v '^cpu' /proc/stat >> ./stat
 
 sudo mount --bind ./stat /proc/stat
 
-for ((i=cores; i<extracores+cores; i++)); do
-  sudo cp ./cpu_base ./custom_cpu/cpu$i -r
-  sudo chown root:root ./custom_cpu/cpu$i
-  sudo chmod 755 ./custom_cpu/cpu$i
-done
-
 if [[ "$customfreq" =~ ^-?[0-9]+$ ]]; then
   for ((i=0; i<cores; i++)); do
     sudo mkdir -p ./custom_cpu/cpufreq/policy$i
     echo $customfreq | sudo tee ./custom_cpu/cpufreq/policy$i/cpuinfo_max_freq >/dev/null
   done
 fi
+
+for ((i=cores; i<extracores+cores; i++)); do
+  sudo ln -s ./cpu_base ./custom_cpu/cpu$i
+#  sudo chown root:root ./custom_cpu/cpu$i
+#  sudo chmod 755 ./custom_cpu/cpu$i
+done
 
 gcc -shared -fPIC -DFAKE_NPROCESSORS=$((cores+extracores)) fake_sysconf.c -o libfakesysconf.so -ldl
 
