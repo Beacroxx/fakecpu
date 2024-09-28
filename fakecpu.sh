@@ -59,7 +59,7 @@ sudo mount -t overlay overlay -o lowerdir=$PWD/original_cpu_dir,upperdir=$PWD/cu
 
 # Set custom CPU frequency if provided
 if [[ "$customfreq" =~ ^-?[0-9]+$ ]]; then
-  parallel -j $cores 'sudo mkdir -p ./custom_cpu/cpufreq/policy{1}; echo {2} | sudo tee ./custom_cpu/cpufreq/policy{1}/cpuinfo_max_freq >/dev/null' ::: $(seq 0 $((cores-1))) ::: $customfreq
+  parallel -j $cores 'sudo mkdir -p ./custom_cpu/cpufreq/policy{1}; echo {2} | sudo tee ./custom_cpu/cpufreq/policy{1}/cpuinfo_max_freq >/dev/null' ::: $(seq 0 $((cores-1))) ::: $(($customfreq / 1000))
 fi
 
 # Create symbolic links for the extra CPU cores
