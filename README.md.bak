@@ -11,9 +11,9 @@ This project allows you to simulate a higher number of CPU cores and a custom CP
 
 1. To simulate a specific number of cores:
    ```
-   ./fakecpu.sh -c [core count] (-f max cpu freq, optional)
+   ./fakecpu.sh [desired core count] (optional max frequency in Hz)
    ```
-   Example: `./fakecpu.sh -c 128 -f 8GHz`
+   Example: `./fakecpu.sh 128`
 
 2. To reset the system:
    ```
@@ -28,4 +28,4 @@ This project allows you to simulate a higher number of CPU cores and a custom CP
 
 ### Note
 
-This is for testing and development purposes only. It does not actually increase your system's processing power. Additionally, tools like `nproc` and `htop` won't show these fake cores, however `btop` and `fastfetch` will.
+This is for testing and development purposes only. It does not actually increase your system's processing power. Aditionally, tools like `nproc` and `htop` won't show these fake cores, however `btop` and `fastfetch` will.
