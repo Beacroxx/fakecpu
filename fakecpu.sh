@@ -64,3 +64,28 @@ fi
 
 # Create symbolic links for the extra CPU cores
 parallel -j $cores 'sudo ln -s /sys/devices/system/cpu/cpu$(( {1} % {2} )) ./custom_cpu/cpu{1}' ::: $(seq $cores $((extracores+cores-1))) ::: $cores
+
+# Build the fakestat library for /proc/stat interception
+echo "Building fakestat.so library..."
+if ! clang -shared -fPIC -o fakestat.so fakestat.c -ldl 2>/dev/null; then
+  echo "Warning: Failed to build fakestat.so. CPU usage may not show for fake cores."
+else
+  echo "Built fakestat.so successfully."
+  
+  # test for Elvish shell
+  if [ "$(ps -p $PPID -o comm=)" != "elvish" ]; then
+
+  # Set up LD_PRELOAD automatically
+  export FAKESTAT_CORES=$targetcores
+  export LD_PRELOAD="$PWD/fakestat.so:$LD_PRELOAD"
+  
+  # Store the current environment for cleanup
+  echo "export FAKESTAT_CORES=$targetcores" > .fakecpu_env
+  echo "export LD_PRELOAD=\"$PWD/fakestat.so:\$LD_PRELOAD\"" >> .fakecpu_env
+  
+  echo ""
+  echo "Fake CPU setup complete with $targetcores total cores."
+  echo "CPU usage is now visible in monitoring tools like btop."
+  echo "LD_PRELOAD has been automatically configured in this session."
+  fi
+fi
